@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>소행성 충돌 대비 훈련</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+<!-- 리더보드 버튼 및 Top 3 랭커 -->
+<div class="leaderboard-buttons">
+    <div class="leaderboard-container">
+        <button onclick="showLeaderboard('reaction')">순발력 리더보드</button>
+        <ul id="reactionTop3" class="top-rank"></ul>
+    </div>
+    <div class="leaderboard-container">
+        <button onclick="showLeaderboard('agility')">민첩성 리더보드</button>
+        <ul id="agilityTop3" class="top-rank"></ul>
+    </div>
+</div>
+<div id="timerDisplay" class="hidden">경과 시간: 0.000초</div>
+    <div class="container">
+        <h1>소행성 충돌 대비 훈련</h1>
+        <div id="startScreen">
+            <button id="playButton">플레이</button>
+        </div>
+        <div id="modeScreen" class="hidden">
+            <button id="reactionMode">순발력</button>
+            <button id="agilityMode">민첩성</button>
+        </div>
+        <div id="gameScreen" class="hidden"></div>
+        <div id="resultScreen" class="hidden"></div>
+        <div id="leaderboardScreen" class="hidden"></div>
+    </div>
+<audio id="beepSound">
+    <source src="beep.mp3" type="audio/mpeg">
+</audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
