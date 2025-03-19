@@ -1,4 +1,24 @@
-﻿/* 레트로 스타일 전체 배경 */
+﻿#fullscreenButton {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    font-size: 1rem;
+    padding: 10px 20px;
+    border: 3px solid #00ff80;
+    background-color: transparent;
+    color: #00ff80;
+    font-family: 'Press Start 2P', cursive;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+#fullscreenButton:hover {
+    background-color: #00ff80;
+    color: #2d004d;
+}
+
+
+/* 레트로 스타일 전체 배경 */
 body {
     text-align: center;
     font-family: 'Press Start 2P', cursive; /* 픽셀 느낌의 폰트 */

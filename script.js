@@ -361,3 +361,12 @@ function updateTop3() {
 
 /** 페이지 로드 시 Top 3 정보 갱신 */
 document.addEventListener("DOMContentLoaded", updateTop3);
+
+document.getElementById("fullscreenButton").addEventListener("click", function() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    } else {
+        document.exitFullscreen();
+    }
+});
+
