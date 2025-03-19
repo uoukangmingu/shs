@@ -370,11 +370,23 @@ document.getElementById("fullscreenButton").addEventListener("click", function()
     }
 });
 
-
 document.addEventListener("DOMContentLoaded", function () {
     let youtubeAd = document.getElementById("youtubeAd");
-    
-    // 광고 배너가 클릭되지 않도록 마우스 이벤트 차단
-    youtubeAd.style.pointerEvents = "none";
-});
+    let videoIds = ["wS_eIGIyVy4", "j-mRYns3bKs"];
+    let currentIndex = 0;
 
+    function switchVideo() {
+        currentIndex = (currentIndex + 1) % videoIds.length;
+        youtubeAd.src = `https://www.youtube.com/embed/${videoIds[currentIndex]}?autoplay=1&mute=1&loop=0&controls=0&showinfo=0&modestbranding=1`;
+    }
+
+    // 일정 간격으로 영상이 끝났는지 확인 (매 5초마다)
+    setInterval(function () {
+        let videoDuration = 90; // 각 영상 길이 (초) - 정확한 길이를 설정해야 함
+        let elapsedTime = Math.floor((new Date().getTime() / 1000) % videoDuration);
+
+        if (elapsedTime >= videoDuration - 2) { // 끝나기 직전 자동 변경
+            switchVideo();
+        }
+    }, 5000); // 5초마다 체크
+});
