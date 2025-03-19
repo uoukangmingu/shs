@@ -370,3 +370,11 @@ document.getElementById("fullscreenButton").addEventListener("click", function()
     }
 });
 
+
+document.addEventListener("DOMContentLoaded", function () {
+    let youtubeAd = document.getElementById("youtubeAd");
+    
+    // 광고 배너가 클릭되지 않도록 마우스 이벤트 차단
+    youtubeAd.style.pointerEvents = "none";
+});
+
