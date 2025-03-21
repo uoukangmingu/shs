@@ -355,3 +355,7 @@ h1 {
     flex-direction: column-reverse; /* 새로운 글자가 위로 올라가도록 설정 */
     justify-content: flex-start; /* 글자가 창의 중앙에 오도록 조정 */
 }
+
+body.noscroll {
+    overflow: hidden !important;
+}

@@ -20,9 +20,12 @@ function playBGM(bgm) {
     if (currentBGM) {
         currentBGM.currentTime = 0;
         currentBGM.volume = 0.5;
-        currentBGM.play();
+        currentBGM.play().catch(err => {
+            console.warn("BGM 재생 실패:", err);
+        });
     }
 }
+
 
 function stopAllBGM() {
     [mainBGM, reactionBGM, agilityBGM, clearBGM].forEach(bgm => {
@@ -260,9 +263,10 @@ function generateRandomText() {
 }
 
 function showResult() {
-    stopTimer();
-    stopAllBGM(); // 게임 모드 BGM 정지
-    playBGM(clearBGM); // 🎶 클리어 음악 재생
+    stopTimer();              
+    showScreen(resultScreen); // ✅ 먼저 화면을 띄운다
+    stopAllBGM();             // 이전 음악 종료
+    playBGM(clearBGM);        // ✅ 그 후 클리어 브금 재생
 
     let timeTaken = ((endTime - startTime) / 1000).toFixed(3);
     timerDisplay.innerHTML = `최종 시간: ${timeTaken}초`;
@@ -276,12 +280,12 @@ function showResult() {
         </div>
         <div id="nameInputSection" class="hidden">
             <p>이름을 입력하세요:</p>
-            <input type="text" id="playerName" placeholder="이름 입력">
+            <input type="text" id="playerName" placeholder="이름 1234">
             <button id="saveButton" onclick="saveRecord()">기록 저장</button>
         </div>
     `;
-    showScreen(resultScreen);
 }
+
 
 /** 기록 입력 생략 */
 function skipRecord() {
@@ -412,11 +416,24 @@ document.addEventListener("DOMContentLoaded", updateTop3);
 
 document.getElementById("fullscreenButton").addEventListener("click", function() {
     if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
+        document.documentElement.requestFullscreen().then(() => {
+            document.body.classList.add("noscroll"); // 스크롤 차단
+        });
     } else {
-        document.exitFullscreen();
+        document.exitFullscreen().then(() => {
+            document.body.classList.remove("noscroll"); // 스크롤 복구
+        });
     }
 });
+
+document.addEventListener("fullscreenchange", () => {
+    if (document.fullscreenElement) {
+        document.body.classList.add("noscroll");
+    } else {
+        document.body.classList.remove("noscroll");
+    }
+});
+
 
 document.addEventListener("DOMContentLoaded", function () {
     let youtubeAd = document.getElementById("youtubeAd");
