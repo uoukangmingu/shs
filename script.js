@@ -379,11 +379,17 @@ function updateTop3() {
 }
 
 document.addEventListener("keydown", function (event) {
-    if (!isGamePlaying) return; // 게임 중이 아닐 땐 무시
+    // 기록 초기화 단축키는 항상 허용
+    if (event.ctrlKey && event.key.toLowerCase() === "b") {
+        return; // 이건 허용
+    }
+
+    // 게임 중이 아닐 땐 무시
+    if (!isGamePlaying) return;
 
     const key = event.key.toUpperCase();
 
-    // 알파벳 A~Z만 허용
+    // 알파벳 A~Z만 허용, 그 외는 차단
     if (!/^[A-Z]$/.test(key)) {
         event.preventDefault();
         event.stopPropagation();
