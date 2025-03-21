@@ -379,17 +379,18 @@ function updateTop3() {
 }
 
 document.addEventListener("keydown", function (event) {
-    // 기록 초기화 단축키는 항상 허용
+    // ✅ 1. Ctrl + B는 무조건 허용 & 기본 동작 차단
     if (event.ctrlKey && event.key.toLowerCase() === "b") {
-        return; // 이건 허용
+        event.preventDefault(); // 브라우저 기본 기능(북마크) 차단
+        clearRecords();
+        return;
     }
 
-    // 게임 중이 아닐 땐 무시
+    // ✅ 2. 게임 중이 아닐 땐 제한 없음
     if (!isGamePlaying) return;
 
+    // ✅ 3. 알파벳만 허용
     const key = event.key.toUpperCase();
-
-    // 알파벳 A~Z만 허용, 그 외는 차단
     if (!/^[A-Z]$/.test(key)) {
         event.preventDefault();
         event.stopPropagation();
