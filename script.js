@@ -138,6 +138,7 @@ const keyPressSound = new Audio("keypress.mp3"); // 효과음 파일 추가
 
 /** 순발력 게임 실행 */
 function startReactionMode() {
+    isGamePlaying = true;
     stopTimer(); // 이전 타이머 강제 종료
     showScreen(gameScreen);
     let successCount = 0;
@@ -204,6 +205,7 @@ function startReactionMode() {
 
 /** 민첩성 게임 실행 */
 function startAgilityMode() {
+    isGamePlaying = true;
     stopTimer(); // 이전 타이머 강제 종료
     showScreen(gameScreen);
     let keyPressCount = 0;
@@ -263,6 +265,7 @@ function generateRandomText() {
 }
 
 function showResult() {
+    isGamePlaying = false;
     stopTimer();              
     showScreen(resultScreen); // ✅ 먼저 화면을 띄운다
     stopAllBGM();             // 이전 음악 종료
@@ -375,12 +378,19 @@ function updateTop3() {
     document.getElementById("agilityTop3").innerHTML = agilityTop3;
 }
 
-/** 기록 초기화 (Ctrl + B) */
 document.addEventListener("keydown", function (event) {
-    if (event.ctrlKey && event.key.toLowerCase() === "b") {
-        clearRecords();
+    if (!isGamePlaying) return; // 게임 중이 아닐 땐 무시
+
+    const key = event.key.toUpperCase();
+
+    // 알파벳 A~Z만 허용
+    if (!/^[A-Z]$/.test(key)) {
+        event.preventDefault();
+        event.stopPropagation();
+        console.log(`⛔ 무시된 키: ${event.key}`);
     }
 });
+
 
 /** 기록 초기화 함수 */
 function clearRecords() {
