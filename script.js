@@ -359,32 +359,17 @@ function showLeaderboard(mode) {
     showScreen(leaderboardScreen);
 }
 
-/** 현재 Top 3 랭커 표시 (순위 포함, '초'가 줄바꿈 없이 정상 위치) */
-function updateTop3() {
-    let reactionRecords = JSON.parse(localStorage.getItem("leaderboard_reaction")) || [];
-    let agilityRecords = JSON.parse(localStorage.getItem("leaderboard_agility")) || [];
-
-    let reactionTop3 = reactionRecords.length > 0 
-        ? reactionRecords.slice(0, 3).map((entry, index) => 
-            `<li>${index + 1}. ${entry.name} - ${entry.time}초</li>`).join("")
-        : "<li>기록 없음</li>";
-
-    let agilityTop3 = agilityRecords.length > 0 
-        ? agilityRecords.slice(0, 3).map((entry, index) => 
-            `<li>${index + 1}. ${entry.name} - ${entry.time}초</li>`).join("")
-        : "<li>기록 없음</li>";
-
-    document.getElementById("reactionTop3").innerHTML = reactionTop3;
-    document.getElementById("agilityTop3").innerHTML = agilityTop3;
-}
-
 document.addEventListener("keydown", function (event) {
     // ✅ 1. Ctrl + B는 무조건 허용 & 기본 동작 차단
-    if (event.ctrlKey && event.key.toLowerCase() === "b") {
-        event.preventDefault(); // 브라우저 기본 기능(북마크) 차단
-        clearRecords();
-        return;
+if (event.ctrlKey) {
+    switch (event.key.toLowerCase()) {
+        case 'b':
+            event.preventDefault();
+            clearRecords();
+            return;
+        // 추후: case 'r': resetGame(); break;
     }
+}
 
     // ✅ 2. 게임 중이 아닐 땐 제한 없음
     if (!isGamePlaying) return;
