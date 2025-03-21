@@ -7,6 +7,31 @@ const playButton = document.getElementById('playButton');
 const reactionMode = document.getElementById('reactionMode');
 const agilityMode = document.getElementById('agilityMode');
 const beepSound = document.getElementById('beepSound'); // 효과음 추가
+const mainBGM = document.getElementById("mainBGM");
+const reactionBGM = document.getElementById("reactionBGM");
+const agilityBGM = document.getElementById("agilityBGM");
+const clearBGM = document.getElementById("clearBGM");
+
+let currentBGM = null;
+
+function playBGM(bgm) {
+    stopAllBGM();
+    currentBGM = bgm;
+    if (currentBGM) {
+        currentBGM.currentTime = 0;
+        currentBGM.volume = 0.5;
+        currentBGM.play();
+    }
+}
+
+function stopAllBGM() {
+    [mainBGM, reactionBGM, agilityBGM, clearBGM].forEach(bgm => {
+        if (!bgm.paused) {
+            bgm.pause();
+            bgm.currentTime = 0;
+        }
+    });
+}
 
 let startTime, endTime;
 let currentMode = ""; // 현재 플레이 중인 모드 ('reaction' 또는 'agility')
@@ -18,29 +43,43 @@ function showScreen(screen) {
     resultScreen.classList.add('hidden');
     leaderboardScreen.classList.add('hidden');
     screen.classList.remove('hidden');
+
+    // 🎶 화면별로 BGM 변경
+    if (screen === modeScreen) {
+        playBGM(mainBGM);
+    } else if (screen === gameScreen) {
+        // 게임별 모드에 따라 다르게 처리되므로 생략
+    } else {
+        stopAllBGM(); // 결과, 리더보드 등에서는 정지
+    }
 }
 
 playButton.addEventListener('click', () => showScreen(modeScreen));
 
 reactionMode.addEventListener('click', () => {
     currentMode = "reaction";
+    playBGM(reactionBGM); // 🎶 순발력 모드 BGM 재생
     startCountdown(startReactionMode);
 });
 
+
 agilityMode.addEventListener('click', () => {
     currentMode = "agility";
+    playBGM(agilityBGM); // 🎶 민첩성 모드 BGM 재생
     startCountdown(startAgilityMode);
 });
+
 
 let timerInterval; // 타이머 인터벌 저장 변수
 const timerDisplay = document.getElementById("timerDisplay"); // 타이머 UI
 
-/** 5초 카운트다운 후 게임 시작 + 타이머 초기화 */
 function startCountdown(startGameFunction) {
     showScreen(gameScreen);
-    stopTimer(); // 이전 게임의 타이머를 무조건 정지
+    stopTimer();
+    stopAllBGM(); // 🔇 모든 BGM 정지 (모드 선택 음악 포함)
+
     let countdown = 5;
-    timerDisplay.classList.add("hidden"); // 타이머 숨기기
+    timerDisplay.classList.add("hidden");
 
     function playBeep() {
         if (beepSound) {
@@ -50,19 +89,23 @@ function startCountdown(startGameFunction) {
     }
 
     gameScreen.innerHTML = `<p>게임 시작까지: ${countdown}</p>`;
-    playBeep(); 
+    playBeep();
 
     let countdownInterval = setInterval(() => {
         countdown--;
         gameScreen.innerHTML = `<p>게임 시작까지: ${countdown}</p>`;
-        
         if (countdown > 0) {
             playBeep();
         } else {
             clearInterval(countdownInterval);
-            startTime = Date.now(); // 타이머 시작
-            timerDisplay.classList.remove("hidden"); // 타이머 보이기
-            startTimer(); // 실시간 타이머 시작
+            startTime = Date.now();
+            timerDisplay.classList.remove("hidden");
+            startTimer();
+
+            // 🎵 게임 모드별 BGM 재생 (여기서 시작!)
+            if (currentMode === "reaction") playBGM(reactionBGM);
+            else if (currentMode === "agility") playBGM(agilityBGM);
+
             startGameFunction();
         }
     }, 1000);
@@ -216,11 +259,13 @@ function generateRandomText() {
     return result;
 }
 
-/** 게임 종료 후 결과 표시 */
 function showResult() {
-    stopTimer(); // 타이머 정지
+    stopTimer();
+    stopAllBGM(); // 게임 모드 BGM 정지
+    playBGM(clearBGM); // 🎶 클리어 음악 재생
+
     let timeTaken = ((endTime - startTime) / 1000).toFixed(3);
-    timerDisplay.innerHTML = `최종 시간: ${timeTaken}초`; // 최종 기록 업데이트
+    timerDisplay.innerHTML = `최종 시간: ${timeTaken}초`;
 
     resultScreen.innerHTML = `
         <h2>완료!</h2>
@@ -263,27 +308,30 @@ function showNameInput() {
 
 
 
-/** 게임 기록을 localStorage에 저장 & 리더보드 업데이트 */
 function saveRecord() {
     let playerName = document.getElementById("playerName").value.trim() || "익명";
     let timeTaken = ((endTime - startTime) / 1000).toFixed(3);
     let storageKey = `leaderboard_${currentMode}`;
 
-    // 기존 기록 불러오기
     let leaderboard = JSON.parse(localStorage.getItem(storageKey)) || [];
+
+    const previousFirst = leaderboard.length > 0 ? leaderboard[0].time : Infinity;
+    const isNewRecord = parseFloat(timeTaken) < previousFirst;
+
     leaderboard.push({ name: playerName, time: parseFloat(timeTaken) });
-
-    // 시간 순으로 정렬 (최고 기록이 가장 위로)
     leaderboard.sort((a, b) => a.time - b.time);
-
-    // 저장
     localStorage.setItem(storageKey, JSON.stringify(leaderboard));
 
-    // Top 3 갱신
     updateTop3();
-    
+
+    // 🎉 새로운 1위라면 효과 발동!
+    if (isNewRecord) {
+        newRecordEffect();
+    }
+
     showLeaderboard(currentMode);
 }
+
 
 /** 리더보드 화면 표시 */
 function showLeaderboard(mode) {
@@ -390,3 +438,77 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }, 5000); // 5초마다 체크
 });
+
+function newRecordEffect() {
+    // 사운드 재생
+    const celebrateSound = document.getElementById("celebrateSound");
+    if (celebrateSound) {
+        celebrateSound.currentTime = 0;
+        celebrateSound.play();
+    }
+
+    // 폭죽 효과
+    for (let i = 0; i < 30; i++) {
+        const particle = document.createElement("div");
+        particle.className = "firework";
+        const size = Math.random() * 8 + 5 + "px";
+        const color = `hsl(${Math.random() * 360}, 100%, 70%)`;
+
+        particle.style.width = size;
+        particle.style.height = size;
+        particle.style.backgroundColor = color;
+        particle.style.left = Math.random() * 100 + "vw";
+        particle.style.top = Math.random() * 100 + "vh";
+
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 1000);
+    }
+
+    // 🎉 "새로운 1위 등극!" 텍스트 표시
+    const text = document.createElement("div");
+    text.id = "newRecordText";
+    text.innerText = "✨ 새로운 1위 등극! ✨";
+    document.body.appendChild(text);
+    setTimeout(() => text.remove(), 2500);
+}
+
+
+// CSS 애니메이션을 위한 코드 (index.html에 넣어도 됨)
+const style = document.createElement("style");
+style.textContent = `
+.firework {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: explode 1s ease-out forwards;
+    z-index: 9999;
+}
+
+@keyframes explode {
+    0% { opacity: 1; transform: scale(0); }
+    100% { opacity: 0; transform: scale(1.5); }
+}
+
+#newRecordText {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    color: #ffcc00;
+    background-color: rgba(0, 0, 0, 0.85);
+    padding: 20px 40px;
+    border: 3px solid #ffcc00;
+    border-radius: 15px;
+    font-family: 'Press Start 2P', cursive;
+    z-index: 10000;
+    animation: popFade 2s ease-out forwards;
+}
+
+@keyframes popFade {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+    30% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+}
+`;
+document.head.appendChild(style);
