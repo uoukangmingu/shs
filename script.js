@@ -284,7 +284,7 @@ function showResult() {
             <button id="skipRecordButton" onclick="skipRecord()">기록 입력 생략</button>
         </div>
         <div id="nameInputSection" class="hidden">
-            <p>[이름 / 전화번호 네자리]입력:</p>
+            <p>[이름/전화번호 네자리]입력:</p>
             <input type="text" id="playerName" placeholder="홍길동 1234">
             <button id="saveButton" onclick="saveRecord()">기록 저장</button>
         </div>
