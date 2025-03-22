@@ -136,20 +136,20 @@ function stopTimer() {
 
 const keyPressSound = new Audio("keypress.mp3"); // 효과음 파일 추가
 
-/** 순발력 게임 실행 */
 function startReactionMode() {
     isGamePlaying = true;
-    stopTimer(); // 이전 타이머 강제 종료
+    stopTimer();
     showScreen(gameScreen);
     let successCount = 0;
+    let expectedKeys = [];
+
     startTime = Date.now();
-    timerDisplay.classList.remove("hidden"); // 타이머 보이기
-    startTimer(); // 실시간 타이머 시작
+    timerDisplay.classList.remove("hidden");
+    startTimer();
 
     generateLetters();
 
     function generateLetters() {
-        let expectedKeys = [];
         let letter1, letter2;
 
         do {
@@ -157,50 +157,52 @@ function startReactionMode() {
             letter2 = String.fromCharCode(65 + Math.floor(Math.random() * 26));
         } while (letter1 === letter2);
 
-        expectedKeys.push(letter1, letter2);
+        expectedKeys = [letter1, letter2];
+
         gameScreen.innerHTML = `
             <p class="letter" id="letter-${letter1}">${letter1}</p>
             <p class="letter" id="letter-${letter2}">${letter2}</p>
         `;
+    }
 
-        function checkKey(event) {
-            let pressedKey = event.key.toUpperCase();
-            if (expectedKeys.includes(pressedKey)) {
-                // 키 입력 효과음 재생
-                keyPressSound.currentTime = 0;
-                keyPressSound.play();
+    function checkKey(event) {
+        let pressedKey = event.key.toUpperCase();
 
-                // 시각적 효과 추가 (눌린 효과)
-                let letterElement = document.getElementById(`letter-${pressedKey}`);
-                if (letterElement) {
-                    letterElement.classList.add("pressed");
-                    setTimeout(() => {
-                        letterElement.classList.remove("pressed");
-                        letterElement.classList.add("clicked"); // 어둡게 변경
-                    }, 100);
-                }
+        if (expectedKeys.includes(pressedKey)) {
+            keyPressSound.currentTime = 0;
+            keyPressSound.play();
 
-                // 입력된 키 제거
-                expectedKeys = expectedKeys.filter(key => key !== pressedKey);
-                if (expectedKeys.length === 0) { // 두 개의 키를 모두 입력했을 때
-                    successCount++;
-                    if (successCount < 5) {
-                        generateLetters();
-                    } else {
-                        endTime = Date.now();
-                        document.removeEventListener('keydown', checkKey);
-                        stopTimer(); // 타이머 정지
-                        showResult(); // 결과 표시
-                    }
+            let letterElement = document.getElementById(`letter-${pressedKey}`);
+            if (letterElement) {
+                letterElement.classList.add("pressed");
+                setTimeout(() => {
+                    letterElement.classList.remove("pressed");
+                    letterElement.classList.add("clicked");
+                }, 100);
+            }
+
+            expectedKeys = expectedKeys.filter(k => k !== pressedKey);
+
+            if (expectedKeys.length === 0) {
+                successCount++;
+                if (successCount < 5) {
+                    generateLetters();
+                } else {
+                    endTime = Date.now();
+                    document.removeEventListener('keydown', checkKey);
+                    stopTimer();
+                    showResult();
                 }
             }
+        } else if (/^[A-Z]$/.test(pressedKey)) {
+            startTime -= 1000;
+            showPenaltyEffect();
         }
-
-        document.removeEventListener('keydown', checkKey);
-        document.addEventListener('keydown', checkKey);
     }
-}
 
+    document.removeEventListener('keydown', checkKey);
+    document.addEventListener('keydown', checkKey);
+}
 
 
 /** 민첩성 게임 실행 */
@@ -282,8 +284,8 @@ function showResult() {
             <button id="skipRecordButton" onclick="skipRecord()">기록 입력 생략</button>
         </div>
         <div id="nameInputSection" class="hidden">
-            <p>이름을 입력하세요:</p>
-            <input type="text" id="playerName" placeholder="이름 1234">
+            <p>[이름 / 전화번호 뒷자리 네자리]를 입력하세요:</p>
+            <input type="text" id="playerName" placeholder="홍길동 1234">
             <button id="saveButton" onclick="saveRecord()">기록 저장</button>
         </div>
     `;
@@ -495,6 +497,14 @@ function newRecordEffect() {
 // CSS 애니메이션을 위한 코드 (index.html에 넣어도 됨)
 const style = document.createElement("style");
 style.textContent = `
+@keyframes fadePenalty {
+    0% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes fadeOutPenalty {
+    0% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+}
 .firework {
     position: fixed;
     border-radius: 50%;
@@ -531,3 +541,26 @@ style.textContent = `
 }
 `;
 document.head.appendChild(style);
+
+function showPenaltyEffect() {
+    const penaltyText = document.createElement("div");
+    penaltyText.innerText = "패널티 +1초";
+    penaltyText.style.position = "fixed";
+    penaltyText.style.top = "50%";
+    penaltyText.style.left = "50%";
+    penaltyText.style.transform = "translate(-50%, -50%)";
+    penaltyText.style.fontSize = "2rem";
+    penaltyText.style.color = "#ff5555";
+    penaltyText.style.backgroundColor = "rgba(0, 0, 0, 0.85)";
+    penaltyText.style.padding = "15px 30px";
+    penaltyText.style.border = "3px solid #ff5555";
+    penaltyText.style.borderRadius = "10px";
+    penaltyText.style.zIndex = "9999";
+    penaltyText.style.animation = "fadeOutPenalty 1s ease-out forwards";
+
+    document.body.appendChild(penaltyText);
+
+    setTimeout(() => {
+        penaltyText.remove();
+    }, 1000);
+}
