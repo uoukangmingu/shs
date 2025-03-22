@@ -216,7 +216,7 @@ function startAgilityMode() {
     startTimer(); // 실시간 타이머 시작
 
     // 해킹 효과 컨테이너 추가 (한 번만 생성)
-    gameScreen.innerHTML = `<p id="instructionText">키보드를 마구 눌러주세요! (0/312)</p>`;
+    gameScreen.innerHTML = `<p id="instructionText">키보드를 마구 눌러주세요! (0/486)</p>`;
 
     let hackingContainer = document.getElementById("hackingContainer");
     if (!hackingContainer) {
@@ -228,7 +228,7 @@ function startAgilityMode() {
 
     function countKeyPress(event) {
         keyPressCount++;
-        document.getElementById("instructionText").innerHTML = `키보드를 마구 눌러주세요! (${keyPressCount}/312)`;
+        document.getElementById("instructionText").innerHTML = `키보드를 마구 눌러주세요! (${keyPressCount}/486)`;
 
         // 해킹 효과 추가
         let randomText = generateRandomText();
@@ -242,7 +242,7 @@ function startAgilityMode() {
             hackingContainer.removeChild(hackingContainer.firstChild);
         }
 
-        if (keyPressCount >= 312) {
+        if (keyPressCount >= 486) {
             endTime = Date.now();
             document.removeEventListener('keydown', countKeyPress);
             stopTimer(); // 타이머 정지
